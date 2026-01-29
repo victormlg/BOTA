@@ -1,11 +1,29 @@
 #include <stdio.h>
-#include <stdbool.h>
+#include "utils.h"
+#include "lexer.h"
 
 #define BUFFER_SIZE 1024
 
+char text_buffer[BUFFER_SIZE];
+
+static int Run(size_t length)
+{
+  ScannerContext ctx;
+
+  ctx.counter = 0;
+  ctx.length = 0;
+  ctx.lineno = 0;
+  ctx.num_tokens = 0;
+
+  while (ctx.counter < ctx.length)
+  {
+    ScanNext(&ctx, text_buffer);
+  }
+  return 0;
+}
+
 static int RunPrompt()
 {
-  char buffer[BUFFER_SIZE];
   size_t length = 0;
 
   int c;
@@ -25,14 +43,13 @@ static int RunPrompt()
         // let through
 
       default:
-        buffer[length++] = (char) c;
+        text_buffer[length++] = (char) c;
         break;
     }
   }
-  buffer[length] = '\0';
-  printf("File content '%s'\n", buffer);
+  text_buffer[length] = '\0';
 
-  return 0;
+  return Run(length);
 }
 
 static int RunFile(const char *source)
@@ -44,11 +61,10 @@ static int RunFile(const char *source)
     return 1;
   }
 
-  // Do something
+  size_t read = fread(text_buffer, sizeof(char), BUFFER_SIZE, f);
 
   fclose(f);
-
-  return 0;
+  return Run(read);
 }
 
 int main(int argc, char **argv)
