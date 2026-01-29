@@ -4,56 +4,47 @@
 
 #define BUFFER_SIZE 1024
 
-char text_buffer[BUFFER_SIZE];
-
-static int Run(size_t length)
+static int Run(ScannerContext *ctx, const char *text_buffer)
 {
-  ScannerContext ctx;
-
-  ctx.counter = 0;
-  ctx.length = 0;
-  ctx.lineno = 0;
-  ctx.num_tokens = 0;
-
-  while (ctx.counter < ctx.length)
+  while (ctx->counter < ctx->length && ctx->error == 0)
   {
-    ScanNext(&ctx, text_buffer);
+    ScanNext(ctx, text_buffer);
   }
-  return 0;
+  return ctx->error;
 }
 
 static int RunPrompt()
 {
+  char text_buffer[BUFFER_SIZE];
   size_t length = 0;
 
   int c;
-  bool is_loop = true;
+  int ret = 0;
+
+  ScannerContext ctx;
+  ctx.counter = 0;
+  ctx.lineno = 0;
+  ctx.num_tokens = 0;
 
   printf(">>> ");
-  while (is_loop)
+  while (ret == 0)
   {
     c = fgetc(stdin);
-    switch (c) {
-      case 'q':
-        is_loop = false;
-        break;
+    text_buffer[length++] = (char) c;
 
-      case '\n':
-        printf(">>> ");
-        // let through
-
-      default:
-        text_buffer[length++] = (char) c;
-        break;
+    if (c == '\n')
+    {
+      printf(">>> ");
+      ctx.length = length;
+      ret = Run(&ctx, text_buffer);
     }
   }
-  text_buffer[length] = '\0';
-
-  return Run(length);
+  return ret;
 }
 
 static int RunFile(const char *source)
 {
+  char text_buffer[BUFFER_SIZE];
   FILE *f = fopen(source, "r");
 
   if (f == NULL)
@@ -62,9 +53,15 @@ static int RunFile(const char *source)
   }
 
   size_t read = fread(text_buffer, sizeof(char), BUFFER_SIZE, f);
-
   fclose(f);
-  return Run(read);
+
+  ScannerContext ctx;
+  ctx.counter = 0;
+  ctx.lineno = 0;
+  ctx.num_tokens = 0;
+  ctx.length = read;
+
+  return Run(&ctx, text_buffer);
 }
 
 int main(int argc, char **argv)

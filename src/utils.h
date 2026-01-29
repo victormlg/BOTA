@@ -11,6 +11,6 @@ typedef enum {
   PARSER_ERROR
 } ErrorType;
 
-void IntepreterError(ErrorType type, const char *msg, size_t lineno);
+void InterpreterError(ErrorType type, const char *msg, size_t lineno);
 
 #endif

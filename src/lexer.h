@@ -28,13 +28,14 @@ typedef struct {
    TokenType type;
 } Token;
 
-#define TOKEN_BUFFER_SIZE 5
+#define TOKEN_BUFFER_SIZE 8
 
 typedef struct {
   size_t lineno;
   size_t counter;
   size_t length;
-  size_t num_tokens;
+  int num_tokens;
+  int error;
   Token token_buffer[TOKEN_BUFFER_SIZE];
 } ScannerContext;
 

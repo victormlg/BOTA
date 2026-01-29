@@ -19,7 +19,6 @@ static bool IsAlphaNumeric(char c)
   return IsAlpha(c) || IsDigit(c);
 }
 
-
 static void PushToken(ScannerContext *ctx, TokenType type)
 {
   Token *token = &ctx->token_buffer[ctx->num_tokens++];
@@ -32,7 +31,7 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
 {
   assert(ctx->num_tokens < TOKEN_BUFFER_SIZE - 1 && "Token buffer should not be full");
 
-  char c = buffer[ctx->counter];
+  char c = buffer[ctx->counter++];
   switch (c) {
     case ' ':
     case '\t':
@@ -103,14 +102,13 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
     default:
       if (IsDigit(c))
       {
-
       }
       else if (IsAlpha(c))
       {
-
       }
       else {
-        IntepreterError(LEXER_ERROR, "Unexpected character", ctx->lineno);
+        InterpreterError(LEXER_ERROR, "Unexpected character", ctx->lineno);
+        ctx->error = 1;
       }
   }
 }
