@@ -47,7 +47,7 @@ typedef struct {
   size_t token_start;
   int num_tokens;
   int error;
-  Token token_buffer[TOKEN_BUFFER_SIZE];
+  Token token_buffer[TOKEN_BUFFER_SIZE]; // TODO: Make it a ring buffer
 } ScannerContext;
 
 void ScanNext(ScannerContext *ctx, const char *buffer);

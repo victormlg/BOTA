@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 {
   printf("Welcome to BOTA 🌀\n");
 
-  char text_buffer[BUFFER_SIZE];
+  char text_buffer[BUFFER_SIZE]; //TODO: make it dynamic
   ScannerContext ctx;
   ctx.counter = 0;
   ctx.lineno = 0;
