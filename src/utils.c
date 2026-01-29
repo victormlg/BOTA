@@ -16,3 +16,8 @@ void InterpreterError(ErrorType type, const char *msg, size_t lineno)
 
   printf("%s\n", msg);
 }
+
+void Info(const char *msg)
+{
+  printf("%s\n", msg);
+}

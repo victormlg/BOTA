@@ -12,5 +12,6 @@ typedef enum {
 } ErrorType;
 
 void InterpreterError(ErrorType type, const char *msg, size_t lineno);
+void Info(const char *msg);
 
 #endif

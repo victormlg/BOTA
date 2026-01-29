@@ -23,15 +23,28 @@ static void PushToken(ScannerContext *ctx, TokenType type)
 {
   Token *token = &ctx->token_buffer[ctx->num_tokens++];
   token->type = type;
-  token->start = ctx->counter;
+  token->start = ctx->token_start;
   token->end = ctx->counter + 1;
 }
+
+static bool Match(ScannerContext *ctx, const char *buffer, char expected)
+{
+  if ((ctx->counter >= ctx->length) || (buffer[ctx->counter] != expected))
+  {
+    return false;
+  }
+  return true;
+  ctx->counter++;
+}
+
 
 void ScanNext(ScannerContext *ctx, const char *buffer)
 {
   assert(ctx->num_tokens < TOKEN_BUFFER_SIZE - 1 && "Token buffer should not be full");
 
   char c = buffer[ctx->counter++];
+  ctx->token_start++;
+
   switch (c) {
     case ' ':
     case '\t':
@@ -84,18 +97,39 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
 
     // Ambiguous
     case '-':
+      PushToken(ctx, Match(ctx, buffer, '>') ? ARROW : SUB);
       break;
     case '|':
+      if (Match(ctx, buffer, '>'))
+      {
+        PushToken(ctx, PIPE);
+      }
+      else {
+        InterpreterError(LEXER_ERROR, "Invalid character sequence", ctx->lineno);
+        ctx->error = 2;
+      }
       break;
     case '=':
+      PushToken(ctx, Match(ctx, buffer, '=') ? EQUAL : ASSIGN);
       break;
     case '!':
+      if (Match(ctx, buffer, '='))
+      {
+        PushToken(ctx, NOT_EQUAL);
+      }
+      else {
+        InterpreterError(LEXER_ERROR, "Invalid character sequence", ctx->lineno);
+        ctx->error = 2;
+      }
       break;
     case '<':
+      PushToken(ctx, Match(ctx, buffer, '=') ? LESSER_EQUAL : LESSER);
       break;
     case '>':
+      PushToken(ctx, Match(ctx, buffer, '=') ? GREATER_EQUAL : GREATER);
       break;
     case '/':
+      // TODO
       break;
 
     // Reserved Words

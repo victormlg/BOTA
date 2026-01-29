@@ -25,6 +25,8 @@ static int RunPrompt()
   ctx.counter = 0;
   ctx.lineno = 0;
   ctx.num_tokens = 0;
+  ctx.token_start = 0;
+  ctx.error = 0;
 
   printf(">>> ");
   while (ret == 0)
@@ -59,6 +61,8 @@ static int RunFile(const char *source)
   ctx.counter = 0;
   ctx.lineno = 0;
   ctx.num_tokens = 0;
+  ctx.token_start = 0;
+  ctx.error = 0;
   ctx.length = read;
 
   return Run(&ctx, text_buffer);
