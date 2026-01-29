@@ -26,11 +26,7 @@ static bool IsDigit(char c)
 
 static bool IsAlpha(char c)
 {
-  if (c < 'a')
-  {
-    c += 20;
-  }
-  return (c >= 'a' && c <= 'z') || c == '_';
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
 static bool IsPOSIXPathname(char c)
@@ -244,7 +240,7 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
         PushPathToken(ctx, buffer);
       }
       else {
-        InterpreterError(LEXER_ERROR, "Invalid character sequence", ctx->lineno);
+        PushToken(ctx, DOT);
       }
       break;
 

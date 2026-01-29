@@ -13,20 +13,12 @@ static int Run(ScannerContext *ctx, const char *text_buffer)
   return ctx->error;
 }
 
-static int RunPrompt()
+static int RunPrompt(ScannerContext *ctx, char *text_buffer)
 {
-  char text_buffer[BUFFER_SIZE];
   size_t length = 0;
 
   int c;
   int ret = 0;
-
-  ScannerContext ctx;
-  ctx.counter = 0;
-  ctx.lineno = 0;
-  ctx.num_tokens = 0;
-  ctx.token_start = 0;
-  ctx.error = 0;
 
   printf(">>> ");
   while (ret == 0)
@@ -37,16 +29,15 @@ static int RunPrompt()
     if (c == '\n')
     {
       printf(">>> ");
-      ctx.length = length;
-      ret = Run(&ctx, text_buffer);
+      ctx->length = length;
+      ret = Run(ctx, text_buffer);
     }
   }
   return ret;
 }
 
-static int RunFile(const char *source)
+static int RunFile(ScannerContext *ctx, char *text_buffer, const char *source)
 {
-  char text_buffer[BUFFER_SIZE];
   FILE *f = fopen(source, "r");
 
   if (f == NULL)
@@ -56,30 +47,32 @@ static int RunFile(const char *source)
 
   size_t read = fread(text_buffer, sizeof(char), BUFFER_SIZE, f);
   fclose(f);
+  ctx->length = read;
 
+  return Run(ctx, text_buffer);
+}
+
+int main(int argc, char **argv)
+{
+  printf("Welcome to BOTA 🌀\n");
+
+  char text_buffer[BUFFER_SIZE];
   ScannerContext ctx;
   ctx.counter = 0;
   ctx.lineno = 0;
   ctx.num_tokens = 0;
   ctx.token_start = 0;
   ctx.error = 0;
-  ctx.length = read;
 
-  return Run(&ctx, text_buffer);
-}
-
-int main(int argc, char **argv)
-{
-  printf("Welcome to BOTA 🌀\n");
   if (argc == 1)
   {
-    return RunPrompt();
+    return RunPrompt(&ctx, text_buffer);
   }
   
   if (argc == 2)
   {
-    return RunFile(argv[argc-1]);
+    return RunFile(&ctx, text_buffer, argv[argc-1]);
   }
   printf("Error: Too many arguments\n");
-  return 0;
+  return 1;
 }

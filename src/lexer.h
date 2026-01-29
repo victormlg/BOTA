@@ -27,7 +27,7 @@ typedef enum {
   // Special chars
   LPAR, RPAR, LBRACE, RBRACE, LBRACKET, RBRACKET, QUOTE, COLON, SEMICOLON, COMMA,
   ADD, MUL, SUB, DIV, 
-  ARROW, PIPE, ASSIGN, 
+  ARROW, PIPE, ASSIGN, DOT,
   EQUAL, NOT_EQUAL, GREATER, LESSER, GREATER_EQUAL, LESSER_EQUAL,
   IDENTIFIER
 } TokenType;
@@ -38,7 +38,7 @@ typedef struct {
    TokenType type;
 } Token;
 
-#define TOKEN_BUFFER_SIZE 8
+#define TOKEN_BUFFER_SIZE 32
 
 typedef struct {
   size_t lineno;

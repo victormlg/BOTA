@@ -1,1 +1,1 @@
-let x: = "Hello world";
+ls all |> filter x -> x.size > 20;
