@@ -6,20 +6,30 @@
 #include "utils.h"
 
 typedef enum {
+  // Reserved words
+  AND = 0, 
+  OR, 
+  NOT,
+  IF, 
+  ELSE,
+  THEN,
+  LET,
+  INTEGER,
+  STRING,
+  FLOAT,
+  BOOL,
+  PATH,
+  STRUCT,
+  ENUM,
+  TRUE_VAL,
+  FALSE_VAL,
+  NOVAL,
   // Special chars
   LPAR, RPAR, LBRACE, RBRACE, LBRACKET, RBRACKET, QUOTE, COLON, SEMICOLON, COMMA,
   ADD, MUL, SUB, DIV, 
   ARROW, PIPE, ASSIGN, 
-  EQUAL, NOT_EQUAL, GREATER, LESSER, GREATER_EQUAL, LESSER_EQUAL, 
-
-  // Reserved words
-  AND, OR, NOT,
-  IF, ELSE, THEN,
-  LET,
-  INTEGER, STRING, FLOAT, BOOL, PATH,
-  RESULT, OPTION, ASYNC,
-  STRUCT, ENUM
-
+  EQUAL, NOT_EQUAL, GREATER, LESSER, GREATER_EQUAL, LESSER_EQUAL,
+  IDENTIFIER
 } TokenType;
 
 typedef struct {

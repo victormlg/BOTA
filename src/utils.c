@@ -21,3 +21,8 @@ void Info(const char *msg)
 {
   printf("%s\n", msg);
 }
+
+bool StringEqual(const char *a,const char *b)
+{
+  return strcmp(a, b) == 0;
+}

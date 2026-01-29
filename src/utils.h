@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <assert.h>
+#include <string.h>
 
 typedef enum {
   LEXER_ERROR,
@@ -13,5 +14,7 @@ typedef enum {
 
 void InterpreterError(ErrorType type, const char *msg, size_t lineno);
 void Info(const char *msg);
+
+bool StringEqual(const char *a, const char *b);
 
 #endif
