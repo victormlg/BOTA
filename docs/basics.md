@@ -135,7 +135,7 @@ module MyModule {
 };
 ```
 
-Files are modules by default. To import a file, you can just import its module:
+Files are modules by default. To import a file, you can just import its module (like python import)
 
 ```
 use myfile
