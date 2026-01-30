@@ -17,7 +17,12 @@ const char *identifiers[] = {
   "struct",
   "enum",
   "true",
-  "false"
+  "false",
+  "Result",
+  "Option",
+  "Async",
+  "Object",
+  "List"
 };
 
 static bool IsDigit(char c)
@@ -227,10 +232,20 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
       }
       break;
     case '<':
-      PushToken(ctx, Match(ctx, buffer, '=') ? LESSER_EQUAL : LESSER);
+      PushToken(ctx, Match(ctx, buffer, '=') ? LESS_EQUAL : LESS_THAN);
       break;
     case '>':
-      PushToken(ctx, Match(ctx, buffer, '=') ? GREATER_EQUAL : GREATER);
+      if (Match(ctx, buffer, '='))
+      {
+        PushToken(ctx, GREATER_EQUAL);
+      }
+      else if (Match(ctx, buffer, '>'))
+      {
+        PushToken(ctx, COMPOSE);
+      }
+      else {
+        PushToken(ctx, GREATER_THAN);
+      }
       break;
     case '/':
       PushPathToken(ctx, buffer);
@@ -246,6 +261,7 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
       break;
 
     // Reserved Words
+    // TODO: Add duration, timestamp and schedule types
     default:
       if (IsDigit(c))
       {

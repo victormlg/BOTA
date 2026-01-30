@@ -36,6 +36,7 @@ type          = IDENTIFIER
                 | FLOAT_TYPE
                 | BOOL_TYPE
                 | PATH_TYPE
+                | FUNCTION_TYPE
                 | DURATION_TYPE
                 | TIMESTAMP_TYPE
                 | SCHEDULE_TYPE
@@ -89,8 +90,11 @@ value         = LPAR rval RPAR
                 | IDENTIFIER
                 | STRING
                 | INTEGER
-                | PATH
                 | FLOAT
+                | PATH
+                | DURATION
+                | TIMESTAMP
+                | SCHEDULE
                 | TRUE_VAL
                 | FALSE_VAL
                 ;
