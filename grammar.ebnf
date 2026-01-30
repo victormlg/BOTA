@@ -1,7 +1,6 @@
 # Missing things:
 # - match stmt
 # - binary operations
-# - function composition
 
 program       = block?;
 
@@ -71,7 +70,9 @@ term          = factor, ((ADD | SUB), factor)*;
 
 factor        = unary, ((MUL | DIV), unary)*;
 
-unary         = SUB, unary | postfix;
+unary         = SUB, unary | func_compose;
+
+func_compose  = postfix, (COMPOSE, postfix)*;
 
 postfix       = value, (list_get | object_get)*
 

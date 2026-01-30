@@ -100,13 +100,13 @@ a;
 ## 3.3.2 Function compositions
 
 
-Functions can be combined with the same pipe operator `|>`
+Functions can be combined with `>>`
 
 ```
 let func1 = x -> x + 1;
 let func2 = y -> y * 2;
 
-let func3 = func1 |> func2 # x -> (x + 1)*2
+let func3 = func1 >> func2 # x -> (x + 1)*2
 ```
 
 If a function has several positional arguments, it can be curried into a function with one positional argument:
@@ -114,7 +114,7 @@ If a function has several positional arguments, it can be curried into a functio
 let twoargs = x,y -> x + y;
 let func4 = twoargs 3;
 
-let func5 = func4 |> func2 # x -> (3 + y)*2
+let func5 = func4 >> func2 # x -> (3 + y)*2
 ```
 
 usecase: combine "background process" with function to make it run in the background. Combine "schedule" with a function to make it run in a regular schedular, like a cron job
