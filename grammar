@@ -25,6 +25,40 @@ stmts:
 stmt:
   LET lval ASSIGN rval SEMICOLON
   | rval SEMICOLON
+  | enum SEMICOLON
+  | struct SEMICOLON
+  | module SEMICOLON
+  | use SEMICOLON
+  ;
+
+enum:
+  ENUM IDENTIFIER LBRACE enum_mems RBRACE
+  ;
+
+enum_mems:
+  IDENTIFIER
+  | enum_mems COMMA IDENTIFIER
+  ;
+
+struct:
+  STRUCT IDENTIFIER LBRACE struct_mems RBRACE
+  ;
+
+struct_mems:
+  struct_mem
+  | struct_mems COMMA struct_mem
+  ;
+
+struct_mem:
+  IDENTIFIER COLON type
+  ;
+
+module:
+  MODULE IDENTIFIER LBRACE stmts RBRACE
+  ;
+
+use:
+  USE IDENTIFIER
   ;
 
 lval:

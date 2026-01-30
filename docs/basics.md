@@ -123,22 +123,24 @@ $ script x="hello"
 ```
 
 
-# 1.5 Namespaces
+# 1.5 Modules
 
-Namespaces are marked using `.` notation. Side effects in modules are executed when the module is defined, but not re-executed on import. Return values (expressions without ;) inside modules are ignored - only let, struct, Enum, ... bindings are exported
+Modules work like namespaces. Inside a module, you can declare whatever code. Then if it is any of: variable, enum, struct, or other module then you can get these using `my_module.name`.
+
+To declare a module:
 
 ```
-module Math {
-    let add = x, y -> x + y;
-    let mul = x, y -> x * y;
+module MyModule {
+    ...
 };
+```
+
+Files are modules by default. To import a file, you can just import its module:
 
 ```
-Files are implicit namspaces, and are imported using `use`
+use myfile
 
-```
-use math.Math; # import Math from file math
-
-Math.add 1 2;
+let x = myfile.some_variable;
+myfile.some_function();
 ```
 
