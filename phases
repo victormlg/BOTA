@@ -1,0 +1,28 @@
+For easier maintainable code, follow this structure:
+
+   Source
+     | 
+ (lexer.c) # Lexical Analysis
+     |
+     V
+   Tokens
+     |
+ (parser.c) # Syntactic Analysis   <----- We're here
+     |
+     V
+    AST
+     |
+(semantic.c) # Semantic Analysis
+     |
+     V
+Validated AST
+     |
+ (codegen.c) # Intermediate Code Generation
+     |
+     V
+  Bytecode
+     |
+   (vm.c) # Execution
+     |
+     V
+  Execution
