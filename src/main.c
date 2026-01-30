@@ -6,6 +6,12 @@
 
 static int Run(ScannerContext *ctx, const char *text_buffer)
 {
+  
+  // for RunPrompt, should call BOTAParserStatementS
+  // for RunFile, shouldcall BOTAParserProgram
+  //
+  // Instead of this loop, just run parser once and it will parse until there is no more token avalaible (it will can ScanNext)
+
   while (ctx->counter < ctx->length && ctx->error == 0)
   {
     ScanNext(ctx, text_buffer);
