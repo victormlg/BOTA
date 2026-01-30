@@ -1,0 +1,120 @@
+# Missing things:
+# - match stmt
+# - binary operations
+# - function composition
+
+program       = block?;
+
+block         = stmt*, rval;
+
+stmt          = LET, lval, ASSIGN, rval, SEMICOLON
+                | rval, SEMICOLON
+                | enum, SEMICOLON
+                | struct, SEMICOLON
+                | module, SEMICOLON
+                | use, SEMICOLON
+                ;
+
+enum          = ENUM, IDENTIFIER, LBRACE, enum_mems, RBRACE;
+
+enum_mems     = IDENTIFIER, (COMMA, IDENTIFIER)*;
+
+struct        = STRUCT, IDENTIFIER, LBRACE, struct_mems, RBRACE;
+
+struct_mems   = struct_mem, (COMMA, struct_mem)*;
+
+struct_mem    = IDENTIFIER, COLON, type;
+
+module        = MODULE, IDENTIFIER, LBRACE, stmt*, RBRACE;
+
+use           = USE, IDENTIFIER;
+
+lval          = IDENTIFIER | IDENTIFIER, COLON, type;
+
+type          = IDENTIFIER
+                | INTEGER_TYPE
+                | STRING_TYPE
+                | FLOAT_TYPE
+                | BOOL_TYPE
+                | PATH_TYPE
+                | DURATION_TYPE
+                | TIMESTAMP_TYPE
+                | SCHEDULE_TYPE
+                | compound_type
+                ;
+
+compound_type = advanced_type, LESS_THAN, types, GREATER_THAN;
+
+advanced_type = RESULT_TYPE
+                | OPTION_TYPE
+                | ASYNC_TYPE
+                | OBJECT_TYPE
+                | LIST_TYPE
+                ;
+types         = type (COMMA, type)*;
+
+rval          = pipe_expr | condition;
+
+pipe_expr     = condition, (PIPE, condition)+;
+
+condition     = and_condition, (OR, and_condition)*;
+
+and_condition = not_condition, (AND, not_condition)*;
+
+not_condition = NOT, not_condition | equality;
+
+equality      = comparison, ((EQUAL | NOT_EQUAL), comparison)*;
+
+comparison    = term, ((LESS_THAN | GREATER_THAN | LESS_EQUAL | GREATER_EQUAL), term)*;
+
+term          = factor, ((ADD | SUB), factor)*;
+
+factor        = unary, ((MUL | DIV), unary)*;
+
+unary         = SUB, unary | postfix;
+
+postfix       = value, (list_get | object_get)*
+
+list_get      = LBRACKET, INTEGER, RBRACKET;
+
+object_get    = DOT, IDENTIFIER;
+
+value         = LPAR rval RPAR
+                | function
+                | list
+                | object
+                | function_call
+                | if_expr
+                | IDENTIFIER
+                | STRING
+                | INTEGER
+                | PATH
+                | FLOAT
+                | TRUE_VAL
+                | FALSE_VAL
+                ;
+
+function      = (LPAR, function_args?, RPAR | function_args), ARROW, type?, function_body;
+
+function_args = lval (COMMA, lval)*;
+
+function_body = LBRACE, block, RBRACE | rval;
+
+list          = LBRACKET, list_args?, RBRACKET;
+
+list_args     = rval (COMMA, rval)*;
+
+object        = LBRACE, object_args?, RBRACE;
+
+object_args   = object_arg (COMMA, object_arg)*;
+
+object_arg    = IDENTIFIER, ASSIGN, rval;
+
+function_call = IDENTIFIER, (LPAR, list_args?, object_args?, RPAR | list_args?, object_args?);
+
+if_expr       = IF, condition, (if_body | THEN rval), else_if*, (ELSE, (if_body | rval))?;
+
+if_body       = LBRACE, block, RBRACE;
+
+else_if       = ELSE, IF, condition, if_body;
+
