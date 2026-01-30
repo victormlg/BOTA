@@ -13,6 +13,7 @@ const char *identifiers[] = {
   "float",
   "boolean",
   "path",
+  "function",
   "struct",
   "enum",
   "true",
