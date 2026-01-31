@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 typedef enum {
   LEXER_ERROR,
