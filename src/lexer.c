@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "bota.h"
 
 const char *identifiers[] = {
   "and",
@@ -14,6 +15,9 @@ const char *identifiers[] = {
   "boolean",
   "path",
   "function",
+  "duration",
+  "timestamp",
+  "schedule",
   "struct",
   "enum",
   "true",
@@ -45,7 +49,7 @@ static bool IsAlphaNumeric(char c)
   return IsAlpha(c) || IsDigit(c);
 }
 
-static void PushToken(ScannerContext *ctx, TokenType type)
+static void PushToken(BOTAContext *ctx, TokenType type)
 {
   Token *token = &ctx->token_buffer[ctx->num_tokens++];
   token->type = type;
@@ -53,7 +57,7 @@ static void PushToken(ScannerContext *ctx, TokenType type)
   token->end = ctx->counter;
 }
 
-static bool Match(ScannerContext *ctx, const char *buffer, char expected)
+static bool Match(BOTAContext *ctx, const char *buffer, char expected)
 {
   if ((ctx->counter >= ctx->length) || (buffer[ctx->counter] != expected))
   {
@@ -63,7 +67,7 @@ static bool Match(ScannerContext *ctx, const char *buffer, char expected)
   return true;
 }
 
-static void PushStringToken(ScannerContext *ctx, const char *buffer)
+static void PushStringToken(BOTAContext *ctx, const char *buffer)
 {
   while (buffer[ctx->counter++] != '"')
   {
@@ -79,14 +83,14 @@ static void PushStringToken(ScannerContext *ctx, const char *buffer)
       return;
     }
   }
-  PushToken(ctx, STRING);
+  PushToken(ctx, TOKEN_STRING);
   // Remove quotes
   Token *token = &ctx->token_buffer[ctx->num_tokens-1];
   token->start +=1;
   token->end -=1;
 }
 
-static void PushNumberToken(ScannerContext *ctx, const char *buffer)
+static void PushNumberToken(BOTAContext *ctx, const char *buffer)
 {
   while (IsDigit(buffer[ctx->counter]))
   {
@@ -100,14 +104,14 @@ static void PushNumberToken(ScannerContext *ctx, const char *buffer)
     {
       ctx->counter++;
     }
-    PushToken(ctx, FLOAT);
+    PushToken(ctx, TOKEN_FLOAT);
   }
   else {
-    PushToken(ctx, INTEGER);
+    PushToken(ctx, TOKEN_INTEGER);
   }
 }
 
-static void PushIdentifierToken(ScannerContext *ctx, const char *buffer)
+static void PushIdentifierToken(BOTAContext *ctx, const char *buffer)
 {
   while (IsAlphaNumeric(buffer[ctx->counter]))
   {
@@ -119,7 +123,7 @@ static void PushIdentifierToken(ScannerContext *ctx, const char *buffer)
   memcpy(token_string, buffer + ctx->token_start, token_length);
   token_string[token_length] = '\0';
 
-  for (int i = 0; i < NOVAL; i++)
+  for (int i = 0; i < TOKEN_NOVAL; i++)
   {
     if (StringEqual(identifiers[i], token_string))
     {
@@ -128,10 +132,10 @@ static void PushIdentifierToken(ScannerContext *ctx, const char *buffer)
     }
   }
 
-  PushToken(ctx, IDENTIFIER);
+  PushToken(ctx, TOKEN_IDENTIFIER);
 }
 
-static void PushPathToken(ScannerContext *ctx, const char *buffer)
+static void PushPathToken(BOTAContext *ctx, const char *buffer)
 {
   do {
     while (IsPOSIXPathname(buffer[ctx->counter]))
@@ -140,11 +144,11 @@ static void PushPathToken(ScannerContext *ctx, const char *buffer)
     }
   } while (buffer[ctx->counter] == '/');
 
-  PushToken(ctx, PATH);
+  PushToken(ctx, TOKEN_PATH);
 }
 
 
-void ScanNext(ScannerContext *ctx, const char *buffer)
+void ScanNext(BOTAContext *ctx, const char *buffer)
 {
   assert(ctx->num_tokens < TOKEN_BUFFER_SIZE - 1 && "Token buffer should not be full");
 
@@ -162,37 +166,37 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
       break;
 
     case '(':
-      PushToken(ctx, LPAR);
+      PushToken(ctx, TOKEN_LPAR);
       break;
     case ')':
-      PushToken(ctx, RPAR);
+      PushToken(ctx, TOKEN_RPAR);
       break;
     case '{':
-      PushToken(ctx, LBRACE);
+      PushToken(ctx, TOKEN_LBRACE);
       break;
     case '}':
-      PushToken(ctx, RBRACE);
+      PushToken(ctx, TOKEN_RBRACE);
       break;
     case '[':
-      PushToken(ctx, LBRACKET);
+      PushToken(ctx, TOKEN_LBRACKET);
       break;
     case ']':
-      PushToken(ctx, RBRACKET);
+      PushToken(ctx, TOKEN_RBRACKET);
       break;
     case '"':
       PushStringToken(ctx, buffer);
       break;
     case ':':
-      PushToken(ctx, COLON);
+      PushToken(ctx, TOKEN_COLON);
       break;
     case ';':
-      PushToken(ctx, SEMICOLON);
+      PushToken(ctx, TOKEN_SEMICOLON);
       break;
     case '+':
-      PushToken(ctx, ADD);
+      PushToken(ctx, TOKEN_ADD);
       break;
     case '*':
-      PushToken(ctx, MUL);
+      PushToken(ctx, TOKEN_MUL);
       break;
     case '#':
       while (ctx->counter < ctx->length && buffer[ctx->counter] != '\n')
@@ -201,17 +205,17 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
       }
       break;
     case ',':
-      PushToken(ctx, COMMA);
+      PushToken(ctx, TOKEN_COMMA);
       break;
 
     // Ambiguous
     case '-':
-      PushToken(ctx, Match(ctx, buffer, '>') ? ARROW : SUB);
+      PushToken(ctx, Match(ctx, buffer, '>') ? TOKEN_ARROW : TOKEN_SUB);
       break;
     case '|':
       if (Match(ctx, buffer, '>'))
       {
-        PushToken(ctx, PIPE);
+        PushToken(ctx, TOKEN_PIPE);
       }
       else {
         InterpreterError(LEXER_ERROR, "Invalid character sequence", ctx->lineno);
@@ -219,12 +223,12 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
       }
       break;
     case '=':
-      PushToken(ctx, Match(ctx, buffer, '=') ? EQUAL : ASSIGN);
+      PushToken(ctx, Match(ctx, buffer, '=') ? TOKEN_EQUAL : TOKEN_ASSIGN);
       break;
     case '!':
       if (Match(ctx, buffer, '='))
       {
-        PushToken(ctx, NOT_EQUAL);
+        PushToken(ctx, TOKEN_NOT_EQUAL);
       }
       else {
         InterpreterError(LEXER_ERROR, "Invalid character sequence", ctx->lineno);
@@ -232,19 +236,19 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
       }
       break;
     case '<':
-      PushToken(ctx, Match(ctx, buffer, '=') ? LESS_EQUAL : LESS_THAN);
+      PushToken(ctx, Match(ctx, buffer, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS_THAN);
       break;
     case '>':
       if (Match(ctx, buffer, '='))
       {
-        PushToken(ctx, GREATER_EQUAL);
+        PushToken(ctx, TOKEN_GREATER_EQUAL);
       }
       else if (Match(ctx, buffer, '>'))
       {
-        PushToken(ctx, COMPOSE);
+        PushToken(ctx, TOKEN_COMPOSE);
       }
       else {
-        PushToken(ctx, GREATER_THAN);
+        PushToken(ctx, TOKEN_GREATER_THAN);
       }
       break;
     case '/':
@@ -256,7 +260,7 @@ void ScanNext(ScannerContext *ctx, const char *buffer)
         PushPathToken(ctx, buffer);
       }
       else {
-        PushToken(ctx, DOT);
+        PushToken(ctx, TOKEN_DOT);
       }
       break;
 

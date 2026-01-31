@@ -4,7 +4,7 @@
 
 #define BUFFER_SIZE 1024
 
-static int Run(ScannerContext *ctx, const char *text_buffer)
+static int Run(BOTAContext *ctx, const char *text_buffer)
 {
   
   // for RunPrompt, should call BOTAParserStatementS
@@ -19,7 +19,7 @@ static int Run(ScannerContext *ctx, const char *text_buffer)
   return ctx->error;
 }
 
-static int RunPrompt(ScannerContext *ctx, char *text_buffer)
+static int RunPrompt(BOTAContext *ctx, char *text_buffer)
 {
   size_t length = 0;
 
@@ -42,7 +42,7 @@ static int RunPrompt(ScannerContext *ctx, char *text_buffer)
   return ret;
 }
 
-static int RunFile(ScannerContext *ctx, char *text_buffer, const char *source)
+static int RunFile(BOTAContext *ctx, char *text_buffer, const char *source)
 {
   FILE *f = fopen(source, "r");
 
@@ -58,17 +58,29 @@ static int RunFile(ScannerContext *ctx, char *text_buffer, const char *source)
   return Run(ctx, text_buffer);
 }
 
+static void BOTAContextInit(BOTAContext *ctx)
+{
+  ctx->counter = 0;
+  ctx->lineno = 0;
+  ctx->num_tokens = 0;
+  ctx->token_start = 0;
+  ctx->length = 0;
+  ctx->error = 0;
+  ctx->capacity = 20;
+  ctx->current_free = 0;
+  ctx->head = 0;
+  ctx->tail = 0;
+  ctx->ast_pool = NULL;
+}
+
 int main(int argc, char **argv)
 {
   printf("Welcome to BOTA 🌀\n");
 
-  char text_buffer[BUFFER_SIZE]; //TODO: make it dynamic
-  ScannerContext ctx;
-  ctx.counter = 0;
-  ctx.lineno = 0;
-  ctx.num_tokens = 0;
-  ctx.token_start = 0;
-  ctx.error = 0;
+  char text_buffer[BUFFER_SIZE]; //TODO: empty when full, no need to malloc
+  BOTAContext ctx;
+
+  BOTAContextInit(&ctx);
 
   if (argc == 1)
   {

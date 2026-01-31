@@ -1,16 +1,71 @@
 
-#include "utils.h"
-
 #ifndef BOTA_H
 #define BOTA_H
 
-// define BOTAContext
+#include "utils.h"
+
+typedef enum {
+  // Reserved words
+  TOKEN_AND = 0, 
+  TOKEN_OR, 
+  TOKEN_NOT,
+  TOKEN_IF, 
+  TOKEN_ELSE,
+  TOKEN_THEN,
+  TOKEN_LET,
+  TOKEN_INTEGER_TYPE,
+  TOKEN_STRING_TYPE,
+  TOKEN_FLOAT_TYPE,
+  TOKEN_BOOL_TYPE,
+  TOKEN_PATH_TYPE,
+  TOKEN_FUNCTION_TYPE,
+  TOKEN_DURATION_TYPE,
+  TOKEN_TIMESTAMP_TYPE,
+  TOKEN_SCHEDULE_TYPE,
+  TOKEN_STRUCT,
+  TOKEN_ENUM,
+  TOKEN_TRUE_VAL,
+  TOKEN_FALSE_VAL,
+  TOKEN_RESULT_TYPE,
+  TOKEN_OPTION_TYPE,
+  TOKEN_ASYNC_TYPE,
+  TOKEN_OBJECT_TYPE,
+  TOKEN_LIST_TYPE,
+  TOKEN_NOVAL,
+  // Special chars
+  TOKEN_LPAR, TOKEN_RPAR, TOKEN_LBRACE, TOKEN_RBRACE, TOKEN_LBRACKET, TOKEN_RBRACKET, TOKEN_QUOTE, TOKEN_COLON, TOKEN_SEMICOLON, TOKEN_COMMA,
+  TOKEN_ADD, TOKEN_MUL, TOKEN_SUB, TOKEN_DIV, 
+  TOKEN_ARROW, TOKEN_PIPE, TOKEN_ASSIGN, TOKEN_DOT, TOKEN_COMPOSE,
+  TOKEN_EQUAL, TOKEN_NOT_EQUAL, TOKEN_GREATER_THAN, TOKEN_LESS_THAN, TOKEN_GREATER_EQUAL, TOKEN_LESS_EQUAL,
+  // values
+  TOKEN_IDENTIFIER, TOKEN_INTEGER, TOKEN_STRING, TOKEN_FLOAT, TOKEN_PATH, TOKEN_DURATION, TOKEN_TIMESTAMP, TOKEN_SCHEDULE
+} TokenType;
+
+typedef struct {
+   size_t start;
+   size_t end;
+   TokenType type;
+} Token;
+
+
+#define TOKEN_BUFFER_SIZE 6
 
 typedef struct {
   size_t lineno;
   size_t counter;
   size_t length;
-  
+  size_t token_start;
+
+  Token token_buffer[TOKEN_BUFFER_SIZE];
+  uint8_t num_tokens;
+  uint8_t tail;
+  uint8_t head;
+
+  int error;
+
+  uint8_t *ast_pool;
+  uint32_t capacity;
+  uint32_t current_free;
 } BOTAContext;
 
 #endif
