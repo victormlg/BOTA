@@ -55,28 +55,6 @@ static uint8_t RunFile(BOTAContext *ctx, const char *source)
   return Run(ctx);
 }
 
-static void BOTAContextInit(BOTAContext *ctx)
-{
-  ctx->lineno = 0;
-  ctx->text_pos = 0;
-  ctx->text_length = 0;
-  ctx->token_start = 0;
-
-  ctx->num_tokens = 0;
-  ctx->head = 0;
-
-  ctx->error = 0;
-
-  ctx->ast_pool = (uint8_t *) calloc(AST_POOL_SIZE, sizeof(uint8_t));
-  ctx->pool_capacity= AST_POOL_SIZE;
-  ctx->pool_pos = 0;
-}
-
-static void BOTAContextDestroy(BOTAContext *ctx)
-{
-  free(ctx->ast_pool);
-}
-
 int main(int argc, char **argv)
 {
   printf("Welcome to BOTA 🌀\n");

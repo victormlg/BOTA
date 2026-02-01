@@ -1,51 +1,51 @@
 #include "parser.h"
 #include "ast.h"
+/*
+static NodeRef BOTAParserProgram();
+static NodeRef BOTAParserBlock();
+static NodeRef BOTAParserStatement();
+static NodeRef BOTAParserRval();
+static NodeRef BOTAParserEnum();
+static NodeRef BOTAParserEnumMembers();
+static NodeRef BOTAParserStruct();
+static NodeRef BOTAParserStructMembers();
+static NodeRef BOTAParserStructMember();
+static NodeRef BOTAParserModule();
+static NodeRef BOTAParserUse();
+static NodeRef BOTAParserLval();
+static NodeRef BOTAParserType();
+static NodeRef BOTAParserCompoundType();
+static NodeRef BOTAParserBOTAParserAdvancedType();
+static NodeRef BOTAParserTypes();
+static NodeRef BOTAParserPipeExpression();
+static NodeRef BOTAParserCondition();
+static NodeRef BOTAParserAndCondition();
+static NodeRef BOTAParserNotCondition();
+static NodeRef BOTAParserEquality();
+static NodeRef BOTAParserComparison();
+static NodeRef BOTAParserTerm();
+static NodeRef BOTAParserFactor();
+static NodeRef BOTAParserUnary();
+static NodeRef BOTAParserFunctionCompose();
+static NodeRef BOTAParserPostfix();
+static NodeRef BOTAParserListGet();
+static NodeRef BOTAParserObjectGet();
+static NodeRef BOTAParserValue();
+static NodeRef BOTAParserFunction();
+static NodeRef BOTAParserFunctionArgs();
+static NodeRef BOTAParserFunctionBody();
+static NodeRef BOTAParserList();
+static NodeRef BOTAParserListArgs();
+static NodeRef BOTAParserObject();
+static NodeRef BOTAParserObjectArgs();
+static NodeRef BOTAParserObjectArg();
+static NodeRef BOTAParserFunctionCall();
+static NodeRef BOTAParserIfExpression();
+static NodeRef BOTAParserIfBody();
+static NodeRef BOTAParserElseIf();
 
-static void BOTAParserProgram();
-static void BOTAParserBlock();
-static void BOTAParserStatement();
-static void BOTAParserRval();
-static void BOTAParserEnum();
-static void BOTAParserEnumMembers();
-static void BOTAParserStruct();
-static void BOTAParserStructMembers();
-static void BOTAParserStructMember();
-static void BOTAParserModule();
-static void BOTAParserUse();
-static void BOTAParserLval();
-static void BOTAParserType();
-static void BOTAParserCompoundType();
-static void BOTAParserBOTAParserAdvancedType();
-static void BOTAParserTypes();
-static void BOTAParserPipeExpression();
-static void BOTAParserCondition();
-static void BOTAParserAndCondition();
-static void BOTAParserNotCondition();
-static void BOTAParserEquality();
-static void BOTAParserComparison();
-static void BOTAParserTerm();
-static void BOTAParserFactor();
-static void BOTAParserUnary();
-static void BOTAParserFunctionCompose();
-static void BOTAParserPostfix();
-static void BOTAParserListGet();
-static void BOTAParserObjectGet();
-static void BOTAParserValue();
-static void BOTAParserFunction();
-static void BOTAParserFunctionArgs();
-static void BOTAParserFunctionBody();
-static void BOTAParserList();
-static void BOTAParserListArgs();
-static void BOTAParserObject();
-static void BOTAParserObjectArgs();
-static void BOTAParserObjectArg();
-static void BOTAParserFunctionCall();
-static void BOTAParserIfExpression();
-static void BOTAParserIfBody();
-static void BOTAParserElseIf();
 
-
-static void Program()
+static NodeRef Program()
 {
 
 }
@@ -61,3 +61,4 @@ static NodeRef BOTAParserStructMembers()
 
   return mem;
 }
+*/

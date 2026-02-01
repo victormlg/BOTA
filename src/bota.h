@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "ast.h"
 
 #ifndef BOTA_H
 #define BOTA_H
@@ -72,4 +73,7 @@ typedef struct {
   uint32_t pool_pos;
 } BOTAContext;
 
+void BOTAContextInit(BOTAContext *ctx);
+void BOTAContextDestroy(BOTAContext *ctx);
+NodeRef BOTAContextAllocate(BOTAContext *ctx, size_t size);
 #endif

@@ -6,16 +6,11 @@ LDFLAGS :=
 # Project structure
 SRC_DIR := src
 BUILD_DIR := build
-
-# Target
 TARGET := $(BUILD_DIR)/bota
 
 # Source and object files
-SRCS := $(SRC_DIR)/main.c \
-        $(SRC_DIR)/lexer.c \
-        $(SRC_DIR)/utils.c
-
-OBJS := $(SRCS:$(SRC_DIR)/%.c=$(BUILD_DIR)/%.o)
+SRCS := $(shell find $(SRC_DIR) -name '*.c')
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 
 # Default target
 all: $(TARGET)
@@ -25,12 +20,9 @@ $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # Compile
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
-
-# Ensure build directory exists
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
 
 # Cleanup
 clean:
