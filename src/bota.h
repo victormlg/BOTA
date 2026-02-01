@@ -52,18 +52,21 @@ typedef struct {
 #define TEXT_BUFFER_SIZE 1024
 
 typedef struct {
+  // Char array
   char text_buffer[TEXT_BUFFER_SIZE];
   size_t lineno;
+  size_t token_start;
   size_t counter;
   size_t length;
-  size_t token_start;
 
+  // Token queue
   Token token_buffer[MAX_LOOKAHEAD];
   uint8_t num_tokens;
   uint8_t head;
 
   uint8_t error;
 
+  // Ast
   uint8_t *ast_pool;
   uint32_t capacity;
   uint32_t current_free;

@@ -30,6 +30,8 @@ const char *identifiers[] = {
   "List"
 };
 
+// Helper functions
+
 static bool IsDigit(char c)
 {
   return c >= '0' && c <= '9';
@@ -49,6 +51,8 @@ static bool IsAlphaNumeric(char c)
 {
   return IsAlpha(c) || IsDigit(c);
 }
+
+// Lexer utils
 
 static void PushToken(BOTAContext *ctx, TokenType type)
 {
@@ -78,6 +82,8 @@ static bool Match(BOTAContext *ctx, char expected)
   ctx->counter++;
   return true;
 }
+
+// Scanning functions
 
 static void PushStringToken(BOTAContext *ctx)
 {
@@ -157,6 +163,7 @@ static void PushPathToken(BOTAContext *ctx)
   PushToken(ctx, TOKEN_PATH);
 }
 
+// Scanning
 
 void ScanNext(BOTAContext *ctx)
 {
