@@ -150,7 +150,7 @@ static void PushPathToken(BOTAContext *ctx, const char *buffer)
 
 void ScanNext(BOTAContext *ctx, const char *buffer)
 {
-  assert(ctx->num_tokens < TOKEN_BUFFER_SIZE - 1 && "Token buffer should not be full");
+  assert(ctx->num_tokens < MAX_LOOKAHEAD - 1 && "Token buffer should not be full");
 
   char c = buffer[ctx->counter];
   ctx->token_start = ctx->counter++;

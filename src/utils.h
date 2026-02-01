@@ -1,4 +1,3 @@
-#include <stdio.h>
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -7,6 +6,8 @@
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef enum {
   LEXER_ERROR,

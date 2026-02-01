@@ -1,8 +1,7 @@
+#include "utils.h"
 
 #ifndef BOTA_H
 #define BOTA_H
-
-#include "utils.h"
 
 typedef enum {
   // Reserved words
@@ -48,7 +47,8 @@ typedef struct {
 } Token;
 
 
-#define TOKEN_BUFFER_SIZE 6
+#define AST_POOL_SIZE 32
+#define MAX_LOOKAHEAD 6
 
 typedef struct {
   size_t lineno;
@@ -56,7 +56,7 @@ typedef struct {
   size_t length;
   size_t token_start;
 
-  Token token_buffer[TOKEN_BUFFER_SIZE];
+  Token token_buffer[MAX_LOOKAHEAD];
   uint8_t num_tokens;
   uint8_t tail;
   uint8_t head;

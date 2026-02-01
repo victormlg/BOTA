@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include "utils.h"
+#include "bota.h"
 #include "lexer.h"
 
 #define BUFFER_SIZE 1024
@@ -60,17 +59,25 @@ static int RunFile(BOTAContext *ctx, char *text_buffer, const char *source)
 
 static void BOTAContextInit(BOTAContext *ctx)
 {
-  ctx->counter = 0;
   ctx->lineno = 0;
-  ctx->num_tokens = 0;
-  ctx->token_start = 0;
+  ctx->counter = 0;
   ctx->length = 0;
-  ctx->error = 0;
-  ctx->capacity = 20;
-  ctx->current_free = 0;
+  ctx->token_start = 0;
+
+  ctx->num_tokens = 0;
   ctx->head = 0;
   ctx->tail = 0;
-  ctx->ast_pool = NULL;
+
+  ctx->error = 0;
+
+  ctx->ast_pool = (uint8_t *) calloc(AST_POOL_SIZE, sizeof(uint8_t));
+  ctx->capacity = AST_POOL_SIZE;
+  ctx->current_free = 0;
+}
+
+static void BOTAContextDestroy(BOTAContext *ctx)
+{
+  free(ctx->ast_pool);
 }
 
 int main(int argc, char **argv)
@@ -82,15 +89,22 @@ int main(int argc, char **argv)
 
   BOTAContextInit(&ctx);
 
+  int ret = 0;
   if (argc == 1)
   {
-    return RunPrompt(&ctx, text_buffer);
+    ret = RunPrompt(&ctx, text_buffer);
+    goto cleanup;
   }
   
   if (argc == 2)
   {
-    return RunFile(&ctx, text_buffer, argv[argc-1]);
+    ret = RunFile(&ctx, text_buffer, argv[argc-1]);
+    goto cleanup;
   }
+  ret = 1;
   printf("Error: Too many arguments\n");
-  return 1;
+
+cleanup:
+  BOTAContextDestroy(&ctx);
+  return ret;
 }
