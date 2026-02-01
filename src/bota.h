@@ -49,8 +49,10 @@ typedef struct {
 
 #define AST_POOL_SIZE 32
 #define MAX_LOOKAHEAD 6
+#define TEXT_BUFFER_SIZE 1024
 
 typedef struct {
+  char text_buffer[TEXT_BUFFER_SIZE];
   size_t lineno;
   size_t counter;
   size_t length;
@@ -60,7 +62,7 @@ typedef struct {
   uint8_t num_tokens;
   uint8_t head;
 
-  int error;
+  uint8_t error;
 
   uint8_t *ast_pool;
   uint32_t capacity;

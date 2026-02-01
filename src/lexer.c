@@ -69,9 +69,9 @@ static void PushToken(BOTAContext *ctx, TokenType type)
   token->end = ctx->counter;
 }
 
-static bool Match(BOTAContext *ctx, const char *buffer, char expected)
+static bool Match(BOTAContext *ctx, char expected)
 {
-  if ((ctx->counter >= ctx->length) || (buffer[ctx->counter] != expected))
+  if ((ctx->counter >= ctx->length) || (ctx->text_buffer[ctx->counter] != expected))
   {
     return false;
   }
@@ -79,11 +79,11 @@ static bool Match(BOTAContext *ctx, const char *buffer, char expected)
   return true;
 }
 
-static void PushStringToken(BOTAContext *ctx, const char *buffer)
+static void PushStringToken(BOTAContext *ctx)
 {
-  while (buffer[ctx->counter++] != '"')
+  while (ctx->text_buffer[ctx->counter++] != '"')
   {
-    if (buffer[ctx->counter] == '\n')
+    if (ctx->text_buffer[ctx->counter] == '\n')
     {
       ctx->lineno++;
     }
@@ -104,17 +104,17 @@ static void PushStringToken(BOTAContext *ctx, const char *buffer)
   token->end -=1;
 }
 
-static void PushNumberToken(BOTAContext *ctx, const char *buffer)
+static void PushNumberToken(BOTAContext *ctx)
 {
-  while (IsDigit(buffer[ctx->counter]))
+  while (IsDigit(ctx->text_buffer[ctx->counter]))
   {
     ctx->counter++;
   }
 
-  if (buffer[ctx->counter] == '.' && IsDigit(buffer[ctx->counter+1]))
+  if (ctx->text_buffer[ctx->counter] == '.' && IsDigit(ctx->text_buffer[ctx->counter+1]))
   {
     ctx->counter++;
-    while (IsDigit(buffer[ctx->counter]))
+    while (IsDigit(ctx->text_buffer[ctx->counter]))
     {
       ctx->counter++;
     }
@@ -125,21 +125,17 @@ static void PushNumberToken(BOTAContext *ctx, const char *buffer)
   }
 }
 
-static void PushIdentifierToken(BOTAContext *ctx, const char *buffer)
+static void PushIdentifierToken(BOTAContext *ctx)
 {
-  while (IsAlphaNumeric(buffer[ctx->counter]))
+  while (IsAlphaNumeric(ctx->text_buffer[ctx->counter]))
   {
     ctx->counter++;
   }
   
   size_t token_length = ctx->counter - ctx->token_start;
-  char token_string[token_length + 1];
-  memcpy(token_string, buffer + ctx->token_start, token_length);
-  token_string[token_length] = '\0';
-
   for (int i = 0; i < TOKEN_NOVAL; i++)
   {
-    if (StringEqual(identifiers[i], token_string))
+    if (memcmp(identifiers[i], &ctx->text_buffer[ctx->token_start], token_length) == 0)
     {
       PushToken(ctx, i);
       return;
@@ -149,22 +145,22 @@ static void PushIdentifierToken(BOTAContext *ctx, const char *buffer)
   PushToken(ctx, TOKEN_IDENTIFIER);
 }
 
-static void PushPathToken(BOTAContext *ctx, const char *buffer)
+static void PushPathToken(BOTAContext *ctx)
 {
   do {
-    while (IsPOSIXPathname(buffer[ctx->counter]))
+    while (IsPOSIXPathname(ctx->text_buffer[ctx->counter]))
     {
       ctx->counter++;
     }
-  } while (buffer[ctx->counter] == '/');
+  } while (ctx->text_buffer[ctx->counter] == '/');
 
   PushToken(ctx, TOKEN_PATH);
 }
 
 
-void ScanNext(BOTAContext *ctx, const char *buffer)
+void ScanNext(BOTAContext *ctx)
 {
-  char c = buffer[ctx->counter];
+  char c = ctx->text_buffer[ctx->counter];
   ctx->token_start = ctx->counter++;
 
   switch (c) {
@@ -196,7 +192,7 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
       PushToken(ctx, TOKEN_RBRACKET);
       break;
     case '"':
-      PushStringToken(ctx, buffer);
+      PushStringToken(ctx);
       break;
     case ':':
       PushToken(ctx, TOKEN_COLON);
@@ -211,7 +207,7 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
       PushToken(ctx, TOKEN_MUL);
       break;
     case '#':
-      while (ctx->counter < ctx->length && buffer[ctx->counter] != '\n')
+      while (ctx->counter < ctx->length && ctx->text_buffer[ctx->counter] != '\n')
       {
         ctx->counter++;
       }
@@ -222,10 +218,10 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
 
     // Ambiguous
     case '-':
-      PushToken(ctx, Match(ctx, buffer, '>') ? TOKEN_ARROW : TOKEN_SUB);
+      PushToken(ctx, Match(ctx, '>') ? TOKEN_ARROW : TOKEN_SUB);
       break;
     case '|':
-      if (Match(ctx, buffer, '>'))
+      if (Match(ctx, '>'))
       {
         PushToken(ctx, TOKEN_PIPE);
       }
@@ -235,10 +231,10 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
       }
       break;
     case '=':
-      PushToken(ctx, Match(ctx, buffer, '=') ? TOKEN_EQUAL : TOKEN_ASSIGN);
+      PushToken(ctx, Match(ctx, '=') ? TOKEN_EQUAL : TOKEN_ASSIGN);
       break;
     case '!':
-      if (Match(ctx, buffer, '='))
+      if (Match(ctx, '='))
       {
         PushToken(ctx, TOKEN_NOT_EQUAL);
       }
@@ -248,14 +244,14 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
       }
       break;
     case '<':
-      PushToken(ctx, Match(ctx, buffer, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS_THAN);
+      PushToken(ctx, Match(ctx, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS_THAN);
       break;
     case '>':
-      if (Match(ctx, buffer, '='))
+      if (Match(ctx, '='))
       {
         PushToken(ctx, TOKEN_GREATER_EQUAL);
       }
-      else if (Match(ctx, buffer, '>'))
+      else if (Match(ctx, '>'))
       {
         PushToken(ctx, TOKEN_COMPOSE);
       }
@@ -264,12 +260,12 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
       }
       break;
     case '/':
-      PushPathToken(ctx, buffer);
+      PushPathToken(ctx);
       break;
     case '.':
-      if (Match(ctx, buffer, '/'))
+      if (Match(ctx, '/'))
       {
-        PushPathToken(ctx, buffer);
+        PushPathToken(ctx);
       }
       else {
         PushToken(ctx, TOKEN_DOT);
@@ -281,11 +277,11 @@ void ScanNext(BOTAContext *ctx, const char *buffer)
     default:
       if (IsDigit(c))
       {
-        PushNumberToken(ctx, buffer);
+        PushNumberToken(ctx);
       }
       else if (IsAlpha(c))
       {
-        PushIdentifierToken(ctx, buffer);
+        PushIdentifierToken(ctx);
       }
       else {
         InterpreterError(LEXER_ERROR, "Unexpected character", ctx->lineno);

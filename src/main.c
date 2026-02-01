@@ -1,9 +1,8 @@
 #include "bota.h"
 #include "lexer.h"
+#include <stdint.h>
 
-#define BUFFER_SIZE 1024
-
-static int Run(BOTAContext *ctx, const char *text_buffer)
+static uint8_t Run(BOTAContext *ctx)
 {
   
   // for RunPrompt, should call BOTAParserStatementS
@@ -13,35 +12,35 @@ static int Run(BOTAContext *ctx, const char *text_buffer)
 
   while (ctx->counter < ctx->length && ctx->error == 0)
   {
-    ScanNext(ctx, text_buffer);
+    ScanNext(ctx);
   }
   return ctx->error;
 }
 
-static int RunPrompt(BOTAContext *ctx, char *text_buffer)
+static uint8_t RunPrompt(BOTAContext *ctx)
 {
   size_t length = 0;
 
   int c;
-  int ret = 0;
+  uint8_t ret = 0;
 
   printf(">>> ");
   while (ret == 0)
   {
     c = fgetc(stdin);
-    text_buffer[length++] = (char) c;
+    ctx->text_buffer[length++] = (char) c;
 
     if (c == '\n')
     {
       printf(">>> ");
       ctx->length = length;
-      ret = Run(ctx, text_buffer);
+      ret = Run(ctx);
     }
   }
   return ret;
 }
 
-static int RunFile(BOTAContext *ctx, char *text_buffer, const char *source)
+static uint8_t RunFile(BOTAContext *ctx, const char *source)
 {
   FILE *f = fopen(source, "r");
 
@@ -50,11 +49,10 @@ static int RunFile(BOTAContext *ctx, char *text_buffer, const char *source)
     return 1;
   }
 
-  size_t read = fread(text_buffer, sizeof(char), BUFFER_SIZE, f);
+  ctx->length = fread(ctx->text_buffer, sizeof(char), TEXT_BUFFER_SIZE, f);
   fclose(f);
-  ctx->length = read;
 
-  return Run(ctx, text_buffer);
+  return Run(ctx);
 }
 
 static void BOTAContextInit(BOTAContext *ctx)
@@ -83,21 +81,20 @@ int main(int argc, char **argv)
 {
   printf("Welcome to BOTA 🌀\n");
 
-  char text_buffer[BUFFER_SIZE]; //TODO: empty when full, no need to malloc
   BOTAContext ctx;
 
   BOTAContextInit(&ctx);
 
-  int ret = 0;
+  uint8_t ret = 0;
   if (argc == 1)
   {
-    ret = RunPrompt(&ctx, text_buffer);
+    ret = RunPrompt(&ctx);
     goto cleanup;
   }
   
   if (argc == 2)
   {
-    ret = RunFile(&ctx, text_buffer, argv[argc-1]);
+    ret = RunFile(&ctx, argv[argc-1]);
     goto cleanup;
   }
   ret = 1;

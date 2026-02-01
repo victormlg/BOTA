@@ -4,6 +4,6 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-void ScanNext(BOTAContext *ctx, const char *buffer);
+void ScanNext(BOTAContext *ctx);
 
 #endif
