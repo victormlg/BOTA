@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "ast.h"
 
 static void BOTAParserProgram();
 static void BOTAParserBlock();
@@ -47,4 +48,16 @@ static void BOTAParserElseIf();
 static void Program()
 {
 
+}
+
+static NodeRef BOTAParserStructMembers()
+{
+  NodeRef mem = BOTAParserStructMember();
+  
+  while ()
+  {
+    
+  }
+
+  return mem;
 }
