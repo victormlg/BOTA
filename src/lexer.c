@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "bota.h"
+#include <stdint.h>
 
 const char *identifiers[] = {
   "and",
@@ -51,7 +52,18 @@ static bool IsAlphaNumeric(char c)
 
 static void PushToken(BOTAContext *ctx, TokenType type)
 {
-  Token *token = &ctx->token_buffer[ctx->num_tokens++];
+  Token *token;
+  if (ctx->num_tokens < MAX_LOOKAHEAD)
+  {
+    uint8_t tail = (ctx->head + ctx->num_tokens) % MAX_LOOKAHEAD;
+    token = &ctx->token_buffer[tail];
+    ctx->num_tokens++;
+
+  } else {
+    token = &ctx->token_buffer[ctx->head];
+    ctx->head = (ctx->head + 1) % MAX_LOOKAHEAD;
+  }
+
   token->type = type;
   token->start = ctx->token_start;
   token->end = ctx->counter;
@@ -85,7 +97,9 @@ static void PushStringToken(BOTAContext *ctx, const char *buffer)
   }
   PushToken(ctx, TOKEN_STRING);
   // Remove quotes
-  Token *token = &ctx->token_buffer[ctx->num_tokens-1];
+  assert(ctx->num_tokens > 0 && "Tried to modify inexistent token");
+  uint8_t peek_index = ctx->head % MAX_LOOKAHEAD;
+  Token *token = &ctx->token_buffer[peek_index];
   token->start +=1;
   token->end -=1;
 }
@@ -150,8 +164,6 @@ static void PushPathToken(BOTAContext *ctx, const char *buffer)
 
 void ScanNext(BOTAContext *ctx, const char *buffer)
 {
-  assert(ctx->num_tokens < MAX_LOOKAHEAD - 1 && "Token buffer should not be full");
-
   char c = buffer[ctx->counter];
   ctx->token_start = ctx->counter++;
 

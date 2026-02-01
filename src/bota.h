@@ -58,7 +58,6 @@ typedef struct {
 
   Token token_buffer[MAX_LOOKAHEAD];
   uint8_t num_tokens;
-  uint8_t tail;
   uint8_t head;
 
   int error;

@@ -66,7 +66,6 @@ static void BOTAContextInit(BOTAContext *ctx)
 
   ctx->num_tokens = 0;
   ctx->head = 0;
-  ctx->tail = 0;
 
   ctx->error = 0;
 
