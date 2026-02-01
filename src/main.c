@@ -1,5 +1,5 @@
 #include "bota.h"
-#include "lexer.h"
+//#include "lexer.h"
 #include <stdint.h>
 
 static uint8_t Run(BOTAContext *ctx)
@@ -10,10 +10,10 @@ static uint8_t Run(BOTAContext *ctx)
   //
   // Instead of this loop, just run parser once and it will parse until there is no more token avalaible (it will can ScanNext)
 
-  while (ctx->text_pos < ctx->text_length && ctx->error == 0)
-  {
-    ScanNext(ctx);
-  }
+  //while (ctx->text_pos < ctx->text_length && ctx->error == 0)
+  //{
+  //  ScanNext(ctx);
+  //}
   return ctx->error;
 }
 

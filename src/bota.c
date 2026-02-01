@@ -1,5 +1,6 @@
 #include "bota.h"
 #include "utils.h"
+#include <stdint.h>
 
 void BOTAContextInit(BOTAContext *ctx)
 {
@@ -21,7 +22,7 @@ void BOTAContextDestroy(BOTAContext *ctx)
  free(ctx->ast_pool);
 }
 
-NodeRef BOTAContextAllocate(BOTAContext *ctx, size_t size)
+uint32_t BOTAContextAllocate(BOTAContext *ctx, size_t size)
 {
   while (ctx->pool_pos + size > ctx->pool_capacity)
   {
@@ -29,17 +30,16 @@ NodeRef BOTAContextAllocate(BOTAContext *ctx, size_t size)
     uint8_t *new_pool = realloc(ctx->ast_pool, ctx->pool_capacity);
     if (new_pool == NULL)
     {
-      NodeRef ret_val = {.ptr = ARENA_NULL};
-      return ret_val;
+      printf("Fatal: Out of Memory\n");
+      exit(1);
     }
     ctx->ast_pool = new_pool;
   }
 
-  arena_ptr ptr = ctx->pool_pos;
+  uint32_t ptr = ctx->pool_pos;
   ctx->pool_pos += size;
 
-  NodeRef ret_val = {.ptr = ptr};
-  return ret_val;
+  return ptr;
 }
 
 

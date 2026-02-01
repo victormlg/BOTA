@@ -1,24 +1,15 @@
 #include "utils.h"
+#include "bota.h"
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef AST_H
+#define AST_H
 
 #define ARENA_NULL 0
 
-// Convention: arena_ptr of 0 means null/absent
-typedef uint32_t arena_ptr;
-
-typedef struct {
-  arena_ptr ptr;
-} StringRef;
-
-typedef struct {
-  arena_ptr ptr;
-} ArrayRef;
-
-typedef struct {
-  arena_ptr ptr;
-} NodeRef;
+// Convention: uint32_t of 0 means null/absent
+typedef uint32_t array_ptr;
+typedef uint32_t string_ptr;
+typedef uint32_t node_ptr;
 
 typedef enum {
   TYPE_STRING,
@@ -38,13 +29,13 @@ typedef enum {
 
 typedef struct {
   TypeType type;
-  ArrayRef sub_types; // [Type]
-} Type;
+  array_ptr sub_types; // [Type]
+} TypeNode;
 
 typedef struct {
-  ArrayRef stmts; // [StmtNode]
-  NodeRef return_stmt; // RvalNode
-  Type return_type;
+  array_ptr stmts; // [StmtNode]
+  node_ptr return_stmt; // RvalNode
+  node_ptr return_type;
 } BlockNode;
 
 typedef enum {
@@ -58,81 +49,80 @@ typedef enum {
 
 typedef struct {
   StmtType type;
-  NodeRef stmt; // Any of (EnumDefNode, StructDefNode, ModuleUseNode, ModuleDefNode, VariableDefNode, RvalNode)
+  node_ptr stmt; // Any of (EnumDefNode, StructDefNode, ModuleUseNode, ModuleDefNode, VariableDefNode, RvalNode)
 } StmtNode;
 
 typedef struct {
-  StringRef name;
-  NodeRef rval; // RvalNode
-  Type type;
+  string_ptr name;
+  node_ptr rval; // RvalNode
+  node_ptr type;
 } ArgNode;
 
 typedef struct {
-  StringRef name;
-  ArrayRef args; // [ArgNode]
-  NodeRef block; // BlockNode
+  string_ptr name;
+  array_ptr args; // [ArgNode]
+  node_ptr block; // BlockNode
 } FunctionDefNode;
 
 typedef struct {
-  StringRef name;
-  ArrayRef pos_args; // [Arg]
-  ArrayRef key_args; // [Arg]
+  string_ptr name;
+  array_ptr pos_args; // [Arg]
+  array_ptr key_args; // [Arg]
 } FunctionCallNode;
 
 typedef struct {
-  NodeRef condition; // RvalNode
-  NodeRef block; // BlockNode
+  node_ptr condition; // RvalNode
+  node_ptr block; // BlockNode
 } ElseIfNode;
 
 typedef struct {
-  NodeRef condition; // RvalNode
-  NodeRef if_block; // BlockNode
-  ArrayRef else_if_nodes; // [ElseIfNode]
-  NodeRef else_block; // BlockNode
+  node_ptr condition; // RvalNode
+  node_ptr if_block; // BlockNode
+  array_ptr else_if_nodes; // [ElseIfNode]
+  node_ptr else_block; // BlockNode
 } IfNode;
 
 typedef struct {
-  ArrayRef piped_values; // [RvalNode]
+  array_ptr piped_values; // [RvalNode]
 } PipeNode;
 
 typedef struct {
-  StringRef module_name;
+  string_ptr module_name;
 } ModuleUseNode;
 
 typedef struct {
-  StringRef name;
-  ArrayRef stmts; // [StmtNode]
+  string_ptr name;
+  array_ptr stmts; // [StmtNode]
 } ModuleDefNode;
 
 typedef struct {
-  StringRef name;
-  ArrayRef labels; // [StringRef]
+  string_ptr name;
+  array_ptr labels; // [string_ptr]
 } EnumDefNode;
 
 typedef struct {
-  StringRef name;
-  Type type;
+  string_ptr name;
+  node_ptr type;
 } MemberNode;
 
 typedef struct {
-  StringRef name;
-  ArrayRef members; // [MemberNode]
+  string_ptr name;
+  array_ptr members; // [MemberNode]
 } StructDefNode;
 
 typedef struct {
-  StringRef name;
-  NodeRef rval; // RvalNode
-  Type type;
+  string_ptr name;
+  node_ptr rval; // RvalNode
+  node_ptr type;
 } VariableDefNode;
 
 typedef struct {
-  Type type;
-  ArrayRef rvals; // [RvalNode]
+  node_ptr type;
+  array_ptr rvals; // [RvalNode]
 } ListNewNode;
 
 typedef struct {
-  Type type;
-  ArrayRef args; // [ArgNode]
+  array_ptr args; // [ArgNode]
 } ObjectNewNode;
 
 typedef enum {
@@ -160,7 +150,7 @@ typedef enum {
 
 typedef struct {
   RvalType type;
-  NodeRef value; // Any of the listed types
+  node_ptr value; // Any of the listed types
 } RvalNode;
 
 typedef enum {
@@ -181,8 +171,8 @@ typedef enum {
 
 typedef struct {
   BinaryOperationType type;
-  NodeRef left; // RvalNode
-  NodeRef right; // RvalNode
+  node_ptr left; // RvalNode
+  node_ptr right; // RvalNode
 } BinaryOperationNode;
 
 typedef enum {
@@ -192,17 +182,40 @@ typedef enum {
 
 typedef struct {
   UnaryOperationType type;
-  NodeRef next; // RvalNode
+  node_ptr next; // RvalNode
 } UnaryOperationNode;
 
 typedef struct {
-  arena_ptr index;
-  NodeRef container; // RvalNode
+  uint32_t index;
+  node_ptr container; // RvalNode
 } ListGetNode;
 
 typedef struct {
-  StringRef label;
-  NodeRef container; // RvalNode
+  string_ptr label;
+  node_ptr container; // RvalNode
 } ObjectGetNode;
 
+
+node_ptr BlockNodeNew(BOTAContext *ctx, array_ptr stmts, node_ptr return_stmt, node_ptr return_type);
+node_ptr StmtNodeNew(BOTAContext *ctx, node_ptr stmt_val, StmtType type);
+node_ptr ArgNodeNew(BOTAContext *ctx, string_ptr name, node_ptr rval, node_ptr type);
+node_ptr FunctionDefNodeNew(BOTAContext *ctx, string_ptr name, array_ptr args, node_ptr block);
+node_ptr FunctionCallNodeNew(BOTAContext *ctx, string_ptr name, array_ptr pos_args, array_ptr key_args);
+node_ptr ElseIfNodeNew(BOTAContext *ctx, node_ptr condition, node_ptr block);
+node_ptr IfNodeNew(BOTAContext *ctx, node_ptr condition, node_ptr if_block, array_ptr else_if_nodes, node_ptr else_block);
+node_ptr PipeNodeNew(BOTAContext *ctx, array_ptr piped_values);
+node_ptr ModuleUseNodeNew(BOTAContext *ctx, string_ptr module_name);
+node_ptr ModuleUseNodeNew(BOTAContext *ctx, string_ptr module_name);
+node_ptr ModuleDefNodeNew(BOTAContext *ctx, string_ptr name, array_ptr stmts);
+node_ptr EnumDefNodeNew(BOTAContext *ctx, string_ptr name, array_ptr labels);
+node_ptr MemberNodeNew(BOTAContext *ctx, string_ptr name, node_ptr type);
+node_ptr StructDefNodeNew(BOTAContext *ctx, string_ptr name, array_ptr members);
+node_ptr VariableDefNodeNew(BOTAContext *ctx, string_ptr name, node_ptr rval, node_ptr type);
+node_ptr ListNewNodeNew(BOTAContext *ctx, node_ptr type, array_ptr rvals);
+node_ptr ObjectNewNodeNew(BOTAContext *ctx, array_ptr args);
+node_ptr RvalNodeNew(BOTAContext *ctx, node_ptr value, RvalType type);
+node_ptr BinaryOperationNodeNew(BOTAContext *ctx, node_ptr left, BinaryOperationType type, node_ptr right);
+node_ptr UnaryOperationNodeNew(BOTAContext *ctx, UnaryOperationType type, node_ptr next);
+node_ptr ListGetNodeNew(BOTAContext *ctx, uint32_t index, node_ptr container);
+node_ptr ObjectGetNodeNew(BOTAContext *ctx, string_ptr label, node_ptr container);
 #endif
