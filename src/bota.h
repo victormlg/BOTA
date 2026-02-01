@@ -56,8 +56,8 @@ typedef struct {
   char text_buffer[TEXT_BUFFER_SIZE];
   size_t lineno;
   size_t token_start;
-  size_t counter;
-  size_t length;
+  size_t text_pos;
+  size_t text_length;
 
   // Token queue
   Token token_buffer[MAX_LOOKAHEAD];
@@ -68,8 +68,8 @@ typedef struct {
 
   // Ast
   uint8_t *ast_pool;
-  uint32_t capacity;
-  uint32_t current_free;
+  uint32_t pool_capacity;
+  uint32_t pool_pos;
 } BOTAContext;
 
 #endif

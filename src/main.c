@@ -10,7 +10,7 @@ static uint8_t Run(BOTAContext *ctx)
   //
   // Instead of this loop, just run parser once and it will parse until there is no more token avalaible (it will can ScanNext)
 
-  while (ctx->counter < ctx->length && ctx->error == 0)
+  while (ctx->text_pos < ctx->text_length && ctx->error == 0)
   {
     ScanNext(ctx);
   }
@@ -19,7 +19,7 @@ static uint8_t Run(BOTAContext *ctx)
 
 static uint8_t RunPrompt(BOTAContext *ctx)
 {
-  size_t length = 0;
+  size_t text_length = 0;
 
   int c;
   uint8_t ret = 0;
@@ -28,12 +28,12 @@ static uint8_t RunPrompt(BOTAContext *ctx)
   while (ret == 0)
   {
     c = fgetc(stdin);
-    ctx->text_buffer[length++] = (char) c;
+    ctx->text_buffer[text_length++] = (char) c;
 
     if (c == '\n')
     {
       printf(">>> ");
-      ctx->length = length;
+      ctx->text_length = text_length;
       ret = Run(ctx);
     }
   }
@@ -49,7 +49,7 @@ static uint8_t RunFile(BOTAContext *ctx, const char *source)
     return 1;
   }
 
-  ctx->length = fread(ctx->text_buffer, sizeof(char), TEXT_BUFFER_SIZE, f);
+  ctx->text_length = fread(ctx->text_buffer, sizeof(char), TEXT_BUFFER_SIZE, f);
   fclose(f);
 
   return Run(ctx);
@@ -58,8 +58,8 @@ static uint8_t RunFile(BOTAContext *ctx, const char *source)
 static void BOTAContextInit(BOTAContext *ctx)
 {
   ctx->lineno = 0;
-  ctx->counter = 0;
-  ctx->length = 0;
+  ctx->text_pos = 0;
+  ctx->text_length = 0;
   ctx->token_start = 0;
 
   ctx->num_tokens = 0;
@@ -68,8 +68,8 @@ static void BOTAContextInit(BOTAContext *ctx)
   ctx->error = 0;
 
   ctx->ast_pool = (uint8_t *) calloc(AST_POOL_SIZE, sizeof(uint8_t));
-  ctx->capacity = AST_POOL_SIZE;
-  ctx->current_free = 0;
+  ctx->pool_capacity= AST_POOL_SIZE;
+  ctx->pool_pos = 0;
 }
 
 static void BOTAContextDestroy(BOTAContext *ctx)

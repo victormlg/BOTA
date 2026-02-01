@@ -70,16 +70,16 @@ static void PushToken(BOTAContext *ctx, TokenType type)
 
   token->type = type;
   token->start = ctx->token_start;
-  token->end = ctx->counter;
+  token->end = ctx->text_pos;
 }
 
 static bool Match(BOTAContext *ctx, char expected)
 {
-  if ((ctx->counter >= ctx->length) || (ctx->text_buffer[ctx->counter] != expected))
+  if ((ctx->text_pos >= ctx->text_length) || (ctx->text_buffer[ctx->text_pos] != expected))
   {
     return false;
   }
-  ctx->counter++;
+  ctx->text_pos++;
   return true;
 }
 
@@ -87,14 +87,14 @@ static bool Match(BOTAContext *ctx, char expected)
 
 static void PushStringToken(BOTAContext *ctx)
 {
-  while (ctx->text_buffer[ctx->counter++] != '"')
+  while (ctx->text_buffer[ctx->text_pos++] != '"')
   {
-    if (ctx->text_buffer[ctx->counter] == '\n')
+    if (ctx->text_buffer[ctx->text_pos] == '\n')
     {
       ctx->lineno++;
     }
 
-    if (ctx->counter >= ctx->length)
+    if (ctx->text_pos >= ctx->text_length)
     {
       InterpreterError(LEXER_ERROR, "Unterminated string", ctx->lineno);
       ctx->error = 3;
@@ -112,17 +112,17 @@ static void PushStringToken(BOTAContext *ctx)
 
 static void PushNumberToken(BOTAContext *ctx)
 {
-  while (IsDigit(ctx->text_buffer[ctx->counter]))
+  while (IsDigit(ctx->text_buffer[ctx->text_pos]))
   {
-    ctx->counter++;
+    ctx->text_pos++;
   }
 
-  if (ctx->text_buffer[ctx->counter] == '.' && IsDigit(ctx->text_buffer[ctx->counter+1]))
+  if (ctx->text_buffer[ctx->text_pos] == '.' && IsDigit(ctx->text_buffer[ctx->text_pos+1]))
   {
-    ctx->counter++;
-    while (IsDigit(ctx->text_buffer[ctx->counter]))
+    ctx->text_pos++;
+    while (IsDigit(ctx->text_buffer[ctx->text_pos]))
     {
-      ctx->counter++;
+      ctx->text_pos++;
     }
     PushToken(ctx, TOKEN_FLOAT);
   }
@@ -133,15 +133,15 @@ static void PushNumberToken(BOTAContext *ctx)
 
 static void PushIdentifierToken(BOTAContext *ctx)
 {
-  while (IsAlphaNumeric(ctx->text_buffer[ctx->counter]))
+  while (IsAlphaNumeric(ctx->text_buffer[ctx->text_pos]))
   {
-    ctx->counter++;
+    ctx->text_pos++;
   }
   
-  size_t token_length = ctx->counter - ctx->token_start;
+  size_t token_text_length = ctx->text_pos - ctx->token_start;
   for (int i = 0; i < TOKEN_NOVAL; i++)
   {
-    if (memcmp(identifiers[i], &ctx->text_buffer[ctx->token_start], token_length) == 0)
+    if (memcmp(identifiers[i], &ctx->text_buffer[ctx->token_start], token_text_length) == 0)
     {
       PushToken(ctx, i);
       return;
@@ -154,11 +154,11 @@ static void PushIdentifierToken(BOTAContext *ctx)
 static void PushPathToken(BOTAContext *ctx)
 {
   do {
-    while (IsPOSIXPathname(ctx->text_buffer[ctx->counter]))
+    while (IsPOSIXPathname(ctx->text_buffer[ctx->text_pos]))
     {
-      ctx->counter++;
+      ctx->text_pos++;
     }
-  } while (ctx->text_buffer[ctx->counter] == '/');
+  } while (ctx->text_buffer[ctx->text_pos] == '/');
 
   PushToken(ctx, TOKEN_PATH);
 }
@@ -167,8 +167,8 @@ static void PushPathToken(BOTAContext *ctx)
 
 void ScanNext(BOTAContext *ctx)
 {
-  char c = ctx->text_buffer[ctx->counter];
-  ctx->token_start = ctx->counter++;
+  char c = ctx->text_buffer[ctx->text_pos];
+  ctx->token_start = ctx->text_pos++;
 
   switch (c) {
     case ' ':
@@ -214,9 +214,9 @@ void ScanNext(BOTAContext *ctx)
       PushToken(ctx, TOKEN_MUL);
       break;
     case '#':
-      while (ctx->counter < ctx->length && ctx->text_buffer[ctx->counter] != '\n')
+      while (ctx->text_pos < ctx->text_length && ctx->text_buffer[ctx->text_pos] != '\n')
       {
-        ctx->counter++;
+        ctx->text_pos++;
       }
       break;
     case ',':
