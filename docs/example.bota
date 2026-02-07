@@ -1,0 +1,10 @@
+# compute mean and std of last line of files matching gpt_*/accuracy.txt
+
+let list = find . maxdepth=2 path=gpt_*/accuracy.txt # returns a list of paths
+  |> map x -> tail x -n1 # conver to list of last line
+  |> map x -> float ((split x)[3]) # splits on whitespace, return third element and convert it to float
+let avg = list | sum / list.length
+let std = sqrt((list | map(x -> (x - avg)**2) | sum) / (list.length - 1))
+
+"Average: {avg} ± {std}";
+
